@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0; overflow:hidden;">
+
+<iframe id="frame1" style="position:absolute; width:100%; height:100%; border:none;"></iframe>
+<iframe id="frame2" style="position:absolute; width:100%; height:100%; border:none; display:none;"></iframe>
+
+<script>
+const links = [
+    "https://app.powerbi.com/view?r=eyJrIjoiYTllNTM0NzgtMGQzYS00NDJiLTg5MGQtMDg3OTAyZThhNDhlIiwidCI6ImU2MGZlMzU1LTQ1MjctNGQ4Yi1iZGI0LTBhNmExNGQ1NjQ1YiJ9&pageName=cb246035ab3cd9388647",
+    "https://app.powerbi.com/view?r=eyJrIjoiMDU0NTczNTctZmZlYS00NzA0LWFkZjYtNzJkNmQyYmZiNGQ1IiwidCI6ImU2MGZlMzU1LTQ1MjctNGQ4Yi1iZGI0LTBhNmExNGQ1NjQ1YiJ9&pageName=cb246035ab3cd9388647"
+];
+
+let index = 0;
+let ativo = 1;
+
+function trocar() {
+    let frameAtivo = document.getElementById("frame" + ativo);
+    let frameOculto = document.getElementById("frame" + (ativo === 1 ? 2 : 1));
+
+    index = (index + 1) % links.length;
+
+    // começa carregar no oculto
+    frameOculto.src = links[index];
+
+    // espera carregar (tempo aproximado)
+    setTimeout(() => {
+        frameOculto.style.display = "block";
+        frameAtivo.style.display = "none";
+
+        ativo = (ativo === 1 ? 2 : 1);
+    }, 3000); // tempo de carregamento (ajuste aqui)
+
+}
+
+document.getElementById("frame1").src = links[0];
+
+setInterval(trocar, 14000);
+</script>
+
+</body>
+</html>
+
