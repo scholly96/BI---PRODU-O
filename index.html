@@ -14,17 +14,13 @@ const links = [
 let index = 0;
 let ativo = 1;
 
-// ⏱ tempos
-const tempoPrimeiraCarga = 20000; 
-const tempoPreload = 8000;
-const tempoTroca = 14000;
-
 function trocar() {
     let frameAtivo = document.getElementById("frame" + ativo);
     let frameOculto = document.getElementById("frame" + (ativo === 1 ? 2 : 1));
 
     index = (index + 1) % links.length;
 
+    
     frameOculto.src = links[index];
 
     
@@ -33,15 +29,13 @@ function trocar() {
         frameAtivo.style.display = "none";
 
         ativo = (ativo === 1 ? 2 : 1);
-    }, tempoPreload);
+    }, 3000); 
+
 }
+
 document.getElementById("frame1").src = links[0];
 
-// só começa o ciclo depois que deu tempo de carregar bem
-setTimeout(() => {
-    setInterval(trocar, tempoTroca);
-},
-
+setInterval(trocar, 14000);
 </script>
 
 </body>
