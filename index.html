@@ -14,29 +14,35 @@ const links = [
 let index = 0;
 let ativo = 1;
 
+// ⏱ tempos
+const tempoPrimeiraCarga = 20000; 
+const tempoPreload = 8000;
+const tempoTroca = 14000;
+
 function trocar() {
     let frameAtivo = document.getElementById("frame" + ativo);
     let frameOculto = document.getElementById("frame" + (ativo === 1 ? 2 : 1));
 
     index = (index + 1) % links.length;
 
-   
     frameOculto.src = links[index];
 
+    
     setTimeout(() => {
         frameOculto.style.display = "block";
         frameAtivo.style.display = "none";
 
         ativo = (ativo === 1 ? 2 : 1);
-    }, 3000); 
-
+    }, tempoPreload);
 }
-
 document.getElementById("frame1").src = links[0];
 
-setInterval(trocar, 14000);
+// só começa o ciclo depois que deu tempo de carregar bem
+setTimeout(() => {
+    setInterval(trocar, tempoTroca);
+},
+
 </script>
 
 </body>
 </html>
-
