@@ -19,18 +19,13 @@ function trocar() {
     let frameOculto = document.getElementById("frame" + (ativo === 1 ? 2 : 1));
 
     index = (index + 1) % links.length;
-
-    // começa carregar no oculto
     frameOculto.src = links[index];
-
-    // espera carregar (tempo aproximado)
     setTimeout(() => {
         frameOculto.style.display = "block";
         frameAtivo.style.display = "none";
 
         ativo = (ativo === 1 ? 2 : 1);
-    }, 3000); // tempo de carregamento (ajuste aqui)
-
+    }, 3000); 
 }
 
 document.getElementById("frame1").src = links[0];
