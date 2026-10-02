@@ -1,37 +1,129 @@
 <!DOCTYPE html>
-<html>
-<body style="margin:0; overflow:hidden;">
-
-<iframe id="frame1" style="position:absolute; width:100%; height:100%; border:none;"></iframe>
-<iframe id="frame2" style="position:absolute; width:100%; height:100%; border:none; display:none;"></iframe>
-
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Gráficos</title>
+<style>
+:root{--bg:#0f1115;--bar:#181b22;--fg:#e8eaf0;--mut:#8b93a5;--acc:#4f8cff}
+@media (prefers-color-scheme:light){:root{--bg:#f3f4f7;--bar:#fff;--fg:#1b1f29;--mut:#6b7385}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,Segoe UI,Roboto,sans-serif}
+body{display:flex;flex-direction:column}
+header,footer{background:var(--bar);display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+header h1{font-size:1rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+select,button{background:transparent;color:var(--fg);border:1px solid var(--mut);border-radius:8px;padding:7px 12px;font-size:.9rem;cursor:pointer}
+select{background:var(--bar)}
+button:hover,select:hover{border-color:var(--acc)}
+button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;padding:12px}
+main img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;background:#fff}
+.nav{position:absolute;top:50%;transform:translateY(-50%);font-size:1.6rem;width:46px;height:46px;border-radius:50%;padding:0;background:var(--bar);opacity:.85}
+#prev{left:12px}#next{right:12px}
+#msg{color:var(--mut);text-align:center;padding:20px}
+footer{justify-content:space-between}
+#titulo{font-weight:600}
+#cont{color:var(--mut);font-variant-numeric:tabular-nums}
+#prog{height:3px;background:var(--acc);width:0;transition:width .2s}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<header>
+  <h1 id="nome">Painel de Gráficos</h1>
+  <select id="grupo" aria-label="Pasta"></select>
+  <button id="play" title="Apresentação automática (P)">▶ Auto</button>
+  <button id="fs" title="Tela cheia (F)">⛶</button>
+</header>
+<main>
+  <button class="nav" id="prev" aria-label="Anterior">‹</button>
+  <img id="img" alt="">
+  <div id="msg" hidden></div>
+  <button class="nav" id="next" aria-label="Próximo">›</button>
+</main>
+<footer><span id="titulo"></span><span id="cont"></span></footer>
+ 
 <script>
-const links = [
-    "https://app.powerbi.com/view?r=eyJrIjoiYTllNTM0NzgtMGQzYS00NDJiLTg5MGQtMDg3OTAyZThhNDhlIiwidCI6ImU2MGZlMzU1LTQ1MjctNGQ4Yi1iZGI0LTBhNmExNGQ1NjQ1YiJ9&pageName=cb246035ab3cd9388647",
-    "https://app.powerbi.com/view?r=eyJrIjoiMDU0NTczNTctZmZlYS00NzA0LWFkZjYtNzJkNmQyYmZiNGQ1IiwidCI6ImU2MGZlMzU1LTQ1MjctNGQ4Yi1iZGI0LTBhNmExNGQ1NjQ1YiJ9&pageName=cb246035ab3cd9388647"
-];
-
-let index = 0;
-let ativo = 1;
-
-function trocar() {
-    let frameAtivo = document.getElementById("frame" + ativo);
-    let frameOculto = document.getElementById("frame" + (ativo === 1 ? 2 : 1));
-
-    index = (index + 1) % links.length;
-    frameOculto.src = links[index];
-    setTimeout(() => {
-        frameOculto.style.display = "block";
-        frameAtivo.style.display = "none";
-
-        ativo = (ativo === 1 ? 2 : 1);
-    }, 3000); 
+/* ===== CONFIGURAÇÃO =====
+   GitHub Pages não lista pastas automaticamente, então liste aqui
+   os arquivos de cada pasta. Caminhos relativos ao index.html. */
+const CONFIG = {
+  titulo: "Painel de Gráficos",
+  intervaloSegundos: 8,           // tempo de cada slide no modo Auto
+  grupos: [
+    { nome: "Produção",     pasta: "imagens/produção",     arquivos: ["GN011026.jpeg"}],
+  ]
+};
+ 
+/* ===== CÓDIGO ===== */
+const $ = id => document.getElementById(id);
+let g = 0, i = 0, timer = null;
+ 
+const limpar = f => f.replace(/\.[^.]+$/, "").replace(/^\d+[-_ ]*/, "").replace(/[-_]+/g, " ");
+const slides = () => CONFIG.grupos[g].arquivos;
+ 
+function mostrar() {
+  const gr = CONFIG.grupos[g], lista = slides();
+  $("msg").hidden = lista.length > 0;
+  $("img").hidden = lista.length === 0;
+  if (!lista.length) { $("msg").textContent = "Nenhuma imagem nesta pasta."; return; }
+  const arq = lista[i];
+  $("img").src = encodeURI(gr.pasta + "/" + arq);
+  $("img").alt = limpar(arq);
+  $("titulo").textContent = limpar(arq);
+  $("cont").textContent = `${i + 1} / ${lista.length}`;
+  $("prog").style.width = ((i + 1) / lista.length * 100) + "%";
+  $("grupo").value = g;
+  history.replaceState(null, "", `#${g}-${i}`);
+  const prox = lista[(i + 1) % lista.length];
+  new Image().src = encodeURI(gr.pasta + "/" + prox); // pré-carrega a próxima
 }
-
-document.getElementById("frame1").src = links[0];
-
-setInterval(trocar, 14000);
+function ir(d) {
+  const n = slides().length; if (!n) return;
+  i = (i + d + n) % n; mostrar();
+}
+function auto() {
+  if (timer) { clearInterval(timer); timer = null; }
+  else timer = setInterval(() => ir(1), CONFIG.intervaloSegundos * 1000);
+  $("play").classList.toggle("on", !!timer);
+  $("play").textContent = timer ? "⏸ Pausar" : "▶ Auto";
+}
+function tela() {
+  document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+}
+ 
+document.title = $("nome").textContent = CONFIG.titulo;
+CONFIG.grupos.forEach((x, k) => $("grupo").add(new Option(x.nome, k)));
+$("grupo").onchange = e => { g = +e.target.value; i = 0; mostrar(); };
+$("prev").onclick = () => ir(-1);
+$("next").onclick = () => ir(1);
+$("play").onclick = auto;
+$("fs").onclick = tela;
+$("img").onclick = () => ir(1);
+$("img").onerror = () => { $("msg").hidden = false; $("msg").textContent = "Imagem não encontrada: " + $("img").getAttribute("src"); };
+$("img").onload = () => { $("msg").hidden = true; };
+ 
+addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); ir(1); }
+  else if (e.key === "ArrowLeft") ir(-1);
+  else if (e.key.toLowerCase() === "f") tela();
+  else if (e.key.toLowerCase() === "p") auto();
+});
+let x0 = null;
+addEventListener("touchstart", e => x0 = e.touches[0].clientX, { passive: true });
+addEventListener("touchend", e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 50) ir(dx < 0 ? 1 : -1);
+  x0 = null;
+});
+ 
+const m = location.hash.match(/^#(\d+)-(\d+)$/);
+if (m && CONFIG.grupos[+m[1]]) { g = +m[1]; i = Math.min(+m[2], Math.max(slides().length - 1, 0)); }
+mostrar();
 </script>
+</body>
+</html>
 
 </body>
 </html>
